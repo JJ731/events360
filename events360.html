@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>events360 — Nooit meer te laat voor kaartjes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F0F4FF;
+  --surface: #FFFFFF;
+  --surface-alt: #E8EDFB;
+  --text: #1B1D2A;
+  --text-2: #5C5F73;
+  --text-3: #8E90A3;
+  --border: rgba(99,102,241,0.1);
+  --border-hover: rgba(99,102,241,0.22);
+  --accent: #6366F1;
+  --accent-light: #EEF2FF;
+  --accent-text: #4338CA;
+  --red: #EF4444;
+  --red-bg: #FEF2F2;
+  --red-text: #B91C1C;
+  --amber: #F59E0B;
+  --amber-bg: #FFFBEB;
+  --amber-text: #B45309;
+  --green: #10B981;
+  --green-bg: #ECFDF5;
+  --green-text: #047857;
+  --coral-bg: #FFF1EC;
+  --coral-text: #C2410C;
+  --pink-bg: #FDF2F8;
+  --pink-text: #BE185D;
+  --purple-bg: #F5F3FF;
+  --purple-text: #6D28D9;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 3px rgba(99,102,241,0.06);
+  --shadow: 0 4px 12px rgba(99,102,241,0.08), 0 1px 3px rgba(0,0,0,0.04);
+  --font: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  --transition: 0.18s ease;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+
+/* Header */
+.header { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+.header-inner { max-width: 800px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+.logo { display: flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; }
+.logo-icon { width: 34px; height: 34px; background: linear-gradient(135deg, #6366F1, #EC4899); border-radius: 10px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.logo-icon::after { content: ''; position: absolute; width: 18px; height: 18px; border: 2.5px solid white; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.logo-icon::before { content: ''; position: absolute; width: 5px; height: 5px; background: white; border-radius: 50%; top: 7px; right: 7px; }
+.logo-text { font-size: 19px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
+.logo-text em { font-style: normal; background: linear-gradient(135deg, #6366F1, #EC4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+/* Navigation */
+.nav { display: flex; gap: 2px; background: var(--surface-alt); border-radius: 10px; padding: 3px; }
+.nav-btn { font-family: var(--font); font-size: 13px; font-weight: 600; color: var(--text-3); padding: 7px 16px; border: none; background: none; border-radius: 8px; cursor: pointer; transition: all var(--transition); white-space: nowrap; }
+.nav-btn:hover { color: var(--text); }
+.nav-btn.active { background: var(--surface); color: var(--accent); box-shadow: var(--shadow-sm); }
+
+/* Mobile nav */
+@media (max-width: 600px) {
+  .nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; border-radius: 0; border-top: 1px solid var(--border); padding: 4px 8px; justify-content: space-around; background: var(--surface); }
+  .nav-btn { font-size: 12px; padding: 8px 10px; flex-direction: column; gap: 2px; }
+  .header .nav { display: none; }
+  body { padding-bottom: 56px; }
+}
+@media (min-width: 601px) { .mobile-nav { display: none; } }
+
+/* Main */
+.main { max-width: 800px; margin: 0 auto; padding: 20px; }
+
+/* Section headers */
+.section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; margin-top: 24px; }
+.section-head:first-child { margin-top: 0; }
+.section-title { font-size: 13px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.8px; }
+.section-link { font-size: 13px; color: var(--accent); cursor: pointer; font-weight: 500; }
+.section-link:hover { text-decoration: underline; }
+
+/* Stat cards */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 4px; }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; position: relative; overflow: hidden; }
+.stat::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #6366F1, #EC4899); border-radius: var(--radius) var(--radius) 0 0; }
+.stat-label { font-size: 12px; color: var(--text-3); font-weight: 600; }
+.stat-value { font-size: 28px; font-weight: 700; color: var(--text); margin-top: 2px; letter-spacing: -0.5px; }
+.stat-sub { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+
+/* Alert cards */
+.alert-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 6px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all var(--transition); }
+.alert-card:hover { border-color: var(--border-hover); box-shadow: var(--shadow); transform: translateY(-2px); }
+.alert-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.alert-dot.urgent { background: var(--red); }
+.alert-dot.soon { background: var(--amber); }
+.alert-dot.later { background: var(--green); }
+.alert-meta { flex: 1; min-width: 0; }
+.alert-title { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.alert-sub { font-size: 12px; color: var(--text-2); margin-top: 1px; }
+.alert-badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; flex-shrink: 0; font-weight: 600; white-space: nowrap; }
+.badge-red { background: var(--red-bg); color: var(--red-text); }
+.badge-amber { background: var(--amber-bg); color: var(--amber-text); }
+.badge-green { background: var(--green-bg); color: var(--green-text); }
+
+/* Filter pills */
+.filters { display: flex; gap: 6px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+.filters::-webkit-scrollbar { display: none; }
+.pill { font-family: var(--font); font-size: 12px; font-weight: 600; padding: 7px 16px; border-radius: 24px; border: 1.5px solid var(--border); color: var(--text-2); cursor: pointer; background: var(--surface); transition: all var(--transition); white-space: nowrap; flex-shrink: 0; }
+.pill:hover { border-color: var(--accent); color: var(--accent); }
+.pill.active { background: linear-gradient(135deg, #6366F1, #7C3AED); color: white; border-color: transparent; }
+
+/* Event cards */
+.event-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 6px; display: flex; gap: 14px; cursor: pointer; transition: all var(--transition); }
+.event-card:hover { border-color: var(--border-hover); box-shadow: var(--shadow); transform: translateY(-2px); }
+.event-card.on-watchlist { border-left: 3px solid var(--accent); background: linear-gradient(90deg, var(--accent-light) 0%, var(--surface) 30%); }
+.ev-date { text-align: center; min-width: 46px; flex-shrink: 0; padding-top: 2px; }
+.ev-day { font-size: 22px; font-weight: 600; color: var(--text); line-height: 1; }
+.ev-month { font-size: 11px; color: var(--text-3); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-top: 2px; }
+.ev-info { flex: 1; min-width: 0; }
+.ev-name { font-size: 14px; font-weight: 500; color: var(--text); }
+.ev-venue { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+.ev-tags { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+.tag { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 4px; }
+.tag-concert { background: var(--coral-bg); color: var(--coral-text); }
+.tag-dans { background: var(--pink-bg); color: var(--pink-text); }
+.tag-watchlist { background: var(--purple-bg); color: var(--purple-text); }
+.tag-sold-out { background: var(--red-bg); color: var(--red-text); }
+.tag-few-left { background: var(--amber-bg); color: var(--amber-text); }
+.tag-available { background: var(--green-bg); color: var(--green-text); }
+.ev-right { text-align: right; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; }
+.ev-price { font-size: 13px; color: var(--text-2); font-weight: 500; }
+.ev-star { width: 20px; height: 20px; cursor: pointer; opacity: 0.3; transition: opacity var(--transition); }
+.ev-star:hover, .ev-star.starred { opacity: 1; }
+
+/* Calendar */
+.cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.cal-title { font-size: 16px; font-weight: 600; }
+.cal-nav { display: flex; gap: 4px; }
+.cal-nav button { font-family: var(--font); width: 32px; height: 32px; border: 1px solid var(--border); background: var(--surface); border-radius: 8px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all var(--transition); color: var(--text-2); }
+.cal-nav button:hover { border-color: var(--border-hover); color: var(--text); }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.cal-day-label { font-size: 11px; color: var(--text-3); text-align: center; padding: 4px 0; font-weight: 600; }
+.cal-cell { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 6px; border-radius: 8px; font-size: 13px; color: var(--text-2); position: relative; cursor: default; transition: background var(--transition); }
+.cal-cell.today { background: linear-gradient(135deg, #EEF2FF, #F5F3FF); color: var(--accent-text); font-weight: 700; border: 1.5px solid var(--accent); }
+.cal-cell.has-event { cursor: pointer; font-weight: 500; color: var(--text); }
+.cal-cell.has-event:hover { background: var(--surface-alt); }
+.cal-dots { display: flex; gap: 2px; margin-top: 3px; }
+.cal-dot { width: 4px; height: 4px; border-radius: 50%; }
+.cal-dot.concert { background: #EA580C; }
+.cal-dot.dans { background: #DB2777; }
+.cal-cell.empty { color: transparent; cursor: default; }
+
+/* Detail view */
+.detail-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 200; background: rgba(0,0,0,0.4); }
+.detail-overlay.open { display: flex; align-items: flex-end; justify-content: center; }
+.detail-panel { background: var(--surface); border-radius: var(--radius-lg) var(--radius-lg) 0 0; width: 100%; max-width: 800px; max-height: 85vh; overflow-y: auto; padding: 24px 20px 40px; animation: slideUp 0.25s ease; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@media (min-width: 601px) {
+  .detail-panel { border-radius: var(--radius-lg); max-height: 80vh; margin: auto; }
+  .detail-overlay.open { align-items: center; }
+}
+.detail-close { font-family: var(--font); position: absolute; top: 16px; right: 20px; background: var(--surface-alt); border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; color: var(--text-2); }
+.detail-close:hover { background: var(--border); }
+.detail-header { margin-bottom: 20px; position: relative; }
+.detail-genre { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.detail-genre.concert { color: var(--coral-text); }
+.detail-genre.dans { color: var(--pink-text); }
+.detail-title { font-size: 22px; font-weight: 600; line-height: 1.2; margin-bottom: 4px; }
+.detail-venue { font-size: 14px; color: var(--text-2); }
+.detail-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.meta-item { background: var(--surface-alt); border-radius: var(--radius); padding: 12px 14px; }
+.meta-label { font-size: 11px; color: var(--text-3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.meta-value { font-size: 14px; font-weight: 500; margin-top: 2px; }
+.detail-section { margin-bottom: 20px; }
+.detail-section-title { font-size: 14px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.koopwijzer { background: var(--accent-light); border-radius: var(--radius); padding: 16px; }
+.koopwijzer-step { display: flex; gap: 10px; margin-bottom: 10px; }
+.koopwijzer-step:last-child { margin-bottom: 0; }
+.step-num { width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, #6366F1, #EC4899); color: white; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.step-text { font-size: 13px; line-height: 1.5; color: var(--text); }
+.step-text a { color: var(--accent); text-decoration: underline; }
+.detail-actions { display: flex; gap: 8px; margin-top: 20px; }
+.btn { font-family: var(--font); font-size: 14px; font-weight: 500; padding: 10px 20px; border-radius: var(--radius); cursor: pointer; transition: all var(--transition); border: none; }
+.btn-primary { background: linear-gradient(135deg, #6366F1, #7C3AED); color: white; }
+.btn-primary:hover { background: linear-gradient(135deg, #4F46E5, #6D28D9); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99,102,241,0.3); }
+.btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { border-color: var(--border-hover); background: var(--surface-alt); }
+.btn-icon { display: inline-flex; align-items: center; gap: 6px; }
+
+/* Watchlist empty state */
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text-3); }
+.empty-state-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
+.empty-state-title { font-size: 16px; font-weight: 500; color: var(--text-2); margin-bottom: 4px; }
+
+/* View management */
+.view { display: none; }
+.view.active { display: block; }
+
+/* Scroll fade */
+.fade-in { opacity: 0; transform: translateY(8px); animation: fadeIn 0.3s ease forwards; }
+@keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo" onclick="showView('dashboard')"><div class="logo-icon"></div><span class="logo-text">events<em>360</em></span></div>
+    <nav class="nav" id="desktop-nav">
+      <button class="nav-btn active" data-view="dashboard" onclick="showView('dashboard')">Dashboard</button>
+      <button class="nav-btn" data-view="agenda" onclick="showView('agenda')">Agenda</button>
+      <button class="nav-btn" data-view="calendar" onclick="showView('calendar')">Kalender</button>
+      <button class="nav-btn" data-view="watchlist" onclick="showView('watchlist')">Watchlist</button>
+    </nav>
+  </div>
+</header>
+
+<nav class="nav mobile-nav" id="mobile-nav">
+  <button class="nav-btn active" data-view="dashboard" onclick="showView('dashboard')">Dashboard</button>
+  <button class="nav-btn" data-view="agenda" onclick="showView('agenda')">Agenda</button>
+  <button class="nav-btn" data-view="calendar" onclick="showView('calendar')">Kalender</button>
+  <button class="nav-btn" data-view="watchlist" onclick="showView('watchlist')">Watchlist</button>
+</nav>
+
+<main class="main">
+
+<!-- DASHBOARD VIEW -->
+<div class="view active" id="view-dashboard">
+  <div class="stats" id="stats-container"></div>
+
+  <div class="section-head">
+    <span class="section-title">Voorverkoop alerts</span>
+    <span class="section-link" onclick="showView('agenda')">Alle events &rarr;</span>
+  </div>
+  <div id="alerts-container"></div>
+
+  <div class="section-head">
+    <span class="section-title">Binnenkort</span>
+  </div>
+  <div class="filters" id="dashboard-filters"></div>
+  <div id="upcoming-container"></div>
+</div>
+
+<!-- AGENDA VIEW -->
+<div class="view" id="view-agenda">
+  <div class="section-head" style="margin-top:0">
+    <span class="section-title">Alle evenementen</span>
+  </div>
+  <div class="filters" id="agenda-filters"></div>
+  <div id="agenda-container"></div>
+</div>
+
+<!-- CALENDAR VIEW -->
+<div class="view" id="view-calendar">
+  <div class="cal-header">
+    <span class="cal-title" id="cal-title"></span>
+    <div class="cal-nav">
+      <button onclick="changeMonth(-1)">&larr;</button>
+      <button onclick="changeMonth(1)">&rarr;</button>
+    </div>
+  </div>
+  <div class="cal-grid" id="cal-grid"></div>
+  <div style="margin-top:16px">
+    <div class="section-head"><span class="section-title" id="cal-events-title">Events deze maand</span></div>
+    <div id="cal-events-container"></div>
+  </div>
+</div>
+
+<!-- WATCHLIST VIEW -->
+<div class="view" id="view-watchlist">
+  <div class="section-head" style="margin-top:0">
+    <span class="section-title">Mijn watchlist</span>
+  </div>
+  <div id="watchlist-container"></div>
+</div>
+
+</main>
+
+<!-- DETAIL OVERLAY -->
+<div class="detail-overlay" id="detail-overlay" onclick="if(event.target===this)closeDetail()">
+  <div class="detail-panel" id="detail-panel"></div>
+</div>
+
+<script>
+var MONTHS_NL = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+var MONTHS_SHORT = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+var DAYS_SHORT = ['ma','di','wo','do','vr','za','zo'];
+
+var calYear = 2026;
+var calMonth = 3;
+var activeFilter = 'all';
+var watchlist = {};
+
+var EVENTS = [
+  { id:1, name:"Billie Eilish", subtitle:"Hit me hard and soft tour", venue:"Ziggo Dome", date:"2026-06-12", genre:"concert", price:65, status:"available", presale:"2026-04-03T10:00", presaleInfo:"Ticketmaster presale via fanclub", koopwijzer:["Ga naar ticketmaster.nl en maak een account aan (gratis)","Schrijf je in voor de Billie Eilish fanclub op billieeilish.com voor presale-toegang","Presale start morgen om 10:00 \u2014 wees er op tijd, er is een digitale wachtrij","Je krijgt een unieke presale-code per e-mail \u2014 check spam","Maximaal 4 kaarten per bestelling, ID verplicht bij binnenkomst"], ticketUrl:"https://www.ticketmaster.nl" },
+  { id:2, name:"NDT 2", subtitle:"Safe as houses", venue:"ITA Stadsschouwburg", date:"2026-06-20", genre:"dans", price:25, status:"available", presale:"2026-04-04T12:00", presaleInfo:"Reguliere verkoop via theater site", koopwijzer:["Ga naar ita.nl en zoek de voorstelling op","Klik op 'Koop kaarten' \u2014 geen account nodig","Kies je stoelen via de zaalplattegrond","Betalen kan met iDEAL of creditcard","E-ticket komt direct per mail"], ticketUrl:"https://ita.nl" },
+  { id:3, name:"Arctic Monkeys", subtitle:"World tour 2026", venue:"AFAS Live", date:"2026-09-08", genre:"concert", price:75, status:"few-left", presale:"2026-04-07T10:00", presaleInfo:"Ticketmaster \u2014 algemene verkoop", koopwijzer:["Ga naar ticketmaster.nl en zoek op 'Arctic Monkeys'","Algemene verkoop start maandag 7 april om 10:00","Digitale wachtrij opent 15 min voor start \u2014 log vroeg in","Maximaal 6 kaarten per account, mobiel ticket verplicht","Tip: probeer ook via de AFAS Live website als Ticketmaster vastloopt"], ticketUrl:"https://www.ticketmaster.nl" },
+  { id:4, name:"Introdans", subtitle:"LARBI \u2014 Sidi Larbi Cherkaoui", venue:"Koninklijk Theater Carré", date:"2026-10-16", genre:"dans", price:30, status:"available", presale:"2026-04-25T00:00", presaleInfo:"Carré website", koopwijzer:["Ga naar carre.nl en zoek op 'Introdans'","Kaarten zijn beschikbaar zonder presale-code","Vrienden van Carré-leden krijgen 10% korting en voorrang","Betalen met iDEAL, direct e-ticket per mail","Tip: rang 1 zijkant biedt vaak beter zicht dan rang 2 midden"], ticketUrl:"https://www.carre.nl" },
+  { id:5, name:"Jett Rebel", subtitle:"", venue:"Ziggo Dome", date:"2026-04-24", genre:"concert", price:45, status:"available", presale:null, koopwijzer:["Kaarten beschikbaar via ticketmaster.nl","Geen presale \u2014 vrije verkoop, nog volop beschikbaar","Diverse prijscategorieën van €35 tot €65","E-ticket of fysiek ticket mogelijk"], ticketUrl:"https://www.ticketmaster.nl" },
+  { id:6, name:"Hairspray", subtitle:"De musical", venue:"DeLaMar", date:"2026-04-26", genre:"dans", price:27, status:"available", presale:null, koopwijzer:["Boek direct via delamar.nl","Kies je voorstelling en stoelen via de plattegrond","DeLaMar Members krijgen 15% korting","Combiticket met diner mogelijk via de site"], ticketUrl:"https://www.delamar.nl" },
+  { id:7, name:"Sigrid", subtitle:"", venue:"Melkweg", date:"2026-05-02", genre:"concert", price:32, status:"available", presale:null, koopwijzer:["Kaarten via melkweg.nl","Standing only \u2014 geen stoelkeuze","Betalen met iDEAL, e-ticket per mail","Tip: wees er vroeg voor een goede plek bij het podium"], ticketUrl:"https://www.melkweg.nl" },
+  { id:8, name:"Het Nationale Ballet", subtitle:"Zwanenmeer", venue:"Nationale Opera & Ballet", date:"2026-05-08", genre:"dans", price:20, status:"available", presale:null, koopwijzer:["Boek via operaballet.nl","Diverse prijzen: €20 (beperkt zicht) tot €120 (eerste rang)","Vrienden van het Ballet krijgen voorrang + 10% korting","Tip: balkonstoelen bieden het mooiste overzicht over de choreografie"], ticketUrl:"https://www.operaballet.nl" },
+  { id:9, name:"Akon", subtitle:"", venue:"Ziggo Dome", date:"2026-05-15", genre:"concert", price:55, status:"available", presale:null, koopwijzer:["Via ticketmaster.nl","Vrije verkoop, ruim beschikbaar","Golden Circle tickets apart verkrijgbaar"], ticketUrl:"https://www.ticketmaster.nl" },
+  { id:10, name:"SG Lewis", subtitle:"", venue:"Ziggo Dome", date:"2026-05-06", genre:"concert", price:42, status:"available", presale:null, koopwijzer:["Via ticketmaster.nl","Vrije verkoop"], ticketUrl:"https://www.ticketmaster.nl" },
+  { id:11, name:"Conny Janssen Danst", subtitle:"Crossroads", venue:"ITA Stadsschouwburg", date:"2026-05-22", genre:"dans", price:28, status:"available", presale:null, koopwijzer:["Via ita.nl","Stoelkeuze via plattegrond","CJK-abonnement geeft voorrang"], ticketUrl:"https://ita.nl" },
+  { id:12, name:"Claire Rosinkranz", subtitle:"", venue:"Ziggo Dome", date:"2026-04-06", genre:"concert", price:38, status:"few-left", presale:null, koopwijzer:["Via ticketmaster.nl","Nog beperkt beschikbaar \u2014 wees er snel bij"], ticketUrl:"https://www.ticketmaster.nl" },
+  { id:13, name:"Pale Waves", subtitle:"+ ADMT", venue:"Ziggo Dome", date:"2026-04-20", genre:"concert", price:35, status:"available", presale:null, koopwijzer:["Via ticketmaster.nl","Vrije verkoop"], ticketUrl:"https://www.ticketmaster.nl" },
+  { id:14, name:"Ladies of Soul", subtitle:"2026 editie", venue:"Ziggo Dome", date:"2026-04-04", genre:"concert", price:60, status:"sold-out", presale:null, koopwijzer:["Uitverkocht via officiële kanalen","Check ticketswap.nl voor doorverkoop","Pas op voor te hoge prijzen \u2014 de originele prijs was €60"], ticketUrl:"https://www.ticketswap.nl" },
+  { id:15, name:"Archive", subtitle:"", venue:"Paradiso", date:"2026-04-18", genre:"concert", price:35, status:"available", presale:null, koopwijzer:["Via paradiso.nl","Standing, beperkte capaciteit (1500)","Tip: Paradiso-Lid worden geeft voorrang bij uitverkochte shows"], ticketUrl:"https://www.paradiso.nl" },
+  { id:16, name:"Tutu", subtitle:"Dansshow", venue:"DeLaMar", date:"2026-05-10", genre:"dans", price:38, status:"available", presale:null, koopwijzer:["Via delamar.nl","Familievoorstelling, ook geschikt voor kinderen 8+"], ticketUrl:"https://www.delamar.nl" },
+  { id:17, name:"Codarts Rotterdam", subtitle:"Eindpresentatie dans", venue:"Nationale Opera & Ballet", date:"2026-06-05", genre:"dans", price:21, status:"available", presale:null, koopwijzer:["Via operaballet.nl","Betaalbare kaarten, perfect om jong danstalent te ontdekken"], ticketUrl:"https://www.operaballet.nl" },
+  { id:18, name:"South Arcade", subtitle:"+ Master Peace", venue:"Ziggo Dome", date:"2026-04-10", genre:"concert", price:40, status:"available", presale:null, koopwijzer:["Via ticketmaster.nl"], ticketUrl:"https://www.ticketmaster.nl" }
+];
+
+EVENTS.sort(function(a,b){ return a.date.localeCompare(b.date); });
+watchlist = {1:true, 3:true, 7:true, 8:true, 4:true, 2:true, 17:true};
+
+var VENUES = ['Alle podia','Ziggo Dome','AFAS Live','Paradiso','Melkweg','Tolhuistuin','ITA Stadsschouwburg','DeLaMar','Koninklijk Theater Carré','Nationale Opera & Ballet'];
+
+function formatDate(d) {
+  var p = d.split('-');
+  return parseInt(p[2]) + ' ' + MONTHS_NL[parseInt(p[1])-1] + ' ' + p[0];
+}
+function shortDate(d) {
+  var p = d.split('-');
+  return { day: parseInt(p[2]), month: MONTHS_SHORT[parseInt(p[1])-1], year: parseInt(p[0]), m: parseInt(p[1])-1 };
+}
+function daysUntil(dateStr) {
+  var now = new Date(2026, 3, 2);
+  var target = new Date(dateStr);
+  return Math.ceil((target - now) / 86400000);
+}
+function presaleLabel(ps) {
+  if (!ps) return null;
+  var d = daysUntil(ps.split('T')[0]);
+  if (d <= 1) return { text: 'Morgen ' + ps.split('T')[1].substring(0,5), cls: 'badge-red', urgency: 0 };
+  if (d <= 0) return { text: 'Vandaag ' + ps.split('T')[1].substring(0,5), cls: 'badge-red', urgency: 0 };
+  if (d <= 7) return { text: 'Over ' + d + ' dagen', cls: 'badge-amber', urgency: 1 };
+  return { text: 'Over ' + Math.ceil(d/7) + ' weken', cls: 'badge-green', urgency: 2 };
+}
+function statusTag(s) {
+  if (s === 'sold-out') return '<span class="tag tag-sold-out">Uitverkocht</span>';
+  if (s === 'few-left') return '<span class="tag tag-few-left">Bijna vol</span>';
+  return '<span class="tag tag-available">Beschikbaar</span>';
+}
+
+function renderStats() {
+  var alerts = EVENTS.filter(function(e){ return e.presale && daysUntil(e.presale.split('T')[0]) >= 0; });
+  var wl = EVENTS.filter(function(e){ return watchlist[e.id]; });
+  var upcoming = EVENTS.filter(function(e){ return daysUntil(e.date) >= 0 && daysUntil(e.date) <= 30; });
+  document.getElementById('stats-container').innerHTML =
+    '<div class="stat"><div class="stat-label">Voorverkoop alerts</div><div class="stat-value">' + alerts.length + '</div><div class="stat-sub">aankomende presales</div></div>' +
+    '<div class="stat"><div class="stat-label">Op watchlist</div><div class="stat-value">' + wl.length + '</div><div class="stat-sub">events gevolgd</div></div>' +
+    '<div class="stat"><div class="stat-label">Komende 30 dagen</div><div class="stat-value">' + upcoming.length + '</div><div class="stat-sub">events in Amsterdam</div></div>';
+}
+
+function renderAlerts() {
+  var alerts = EVENTS.filter(function(e){ return e.presale && daysUntil(e.presale.split('T')[0]) >= 0; })
+    .map(function(e){ var l = presaleLabel(e.presale); return { event: e, label: l }; })
+    .sort(function(a,b){ return a.label.urgency - b.label.urgency; });
+
+  var html = '';
+  alerts.forEach(function(a, i) {
+    var e = a.event;
+    var dotCls = a.label.urgency === 0 ? 'urgent' : (a.label.urgency === 1 ? 'soon' : 'later');
+    html += '<div class="alert-card fade-in" style="animation-delay:' + (i*0.05) + 's" onclick="openDetail(' + e.id + ')">' +
+      '<div class="alert-dot ' + dotCls + '"></div>' +
+      '<div class="alert-meta"><div class="alert-title">' + e.name + (e.subtitle ? ' — ' + e.subtitle : '') + '</div>' +
+      '<div class="alert-sub">' + e.venue + ' — ' + formatDate(e.date) + '</div></div>' +
+      '<div class="alert-badge ' + a.label.cls + '">' + a.label.text + '</div></div>';
+  });
+  document.getElementById('alerts-container').innerHTML = html || '<div style="padding:12px;color:var(--text-3);font-size:13px">Geen aankomende presales</div>';
+}
+
+function renderEventCard(e, i) {
+  var d = shortDate(e.date);
+  var isWl = watchlist[e.id];
+  var genreTag = e.genre === 'concert' ? '<span class="tag tag-concert">Concert</span>' : '<span class="tag tag-dans">Dans</span>';
+  return '<div class="event-card' + (isWl ? ' on-watchlist' : '') + ' fade-in" style="animation-delay:' + (i*0.03) + 's" onclick="openDetail(' + e.id + ')">' +
+    '<div class="ev-date"><div class="ev-day">' + d.day + '</div><div class="ev-month">' + d.month + '</div></div>' +
+    '<div class="ev-info"><div class="ev-name">' + e.name + (e.subtitle ? ' — ' + e.subtitle : '') + '</div>' +
+    '<div class="ev-venue">' + e.venue + '</div>' +
+    '<div class="ev-tags">' + genreTag + (isWl ? '<span class="tag tag-watchlist">Watchlist</span>' : '') + statusTag(e.status) + '</div></div>' +
+    '<div class="ev-right"><div class="ev-price">vanaf &euro;' + e.price + '</div>' +
+    '<svg class="ev-star' + (isWl ? ' starred' : '') + '" onclick="event.stopPropagation();toggleWatch(' + e.id + ')" viewBox="0 0 24 24" fill="' + (isWl ? 'var(--accent)' : 'none') + '" stroke="var(--accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>' +
+    '</div></div>';
+}
+
+function renderFilters(containerId) {
+  var genres = ['Alles','Concerten','Dans / ballet'];
+  var html = '';
+  genres.forEach(function(g) {
+    var key = g === 'Alles' ? 'all' : (g === 'Concerten' ? 'concert' : 'dans');
+    html += '<span class="pill' + (activeFilter === key ? ' active' : '') + '" onclick="setFilter(\'' + key + '\')">' + g + '</span>';
+  });
+  VENUES.slice(1).forEach(function(v) {
+    html += '<span class="pill" onclick="setFilter(\'venue:' + v + '\')">' + v + '</span>';
+  });
+  document.getElementById(containerId).innerHTML = html;
+}
+
+function setFilter(f) {
+  activeFilter = f;
+  renderDashboard();
+  renderAgenda();
+  document.querySelectorAll('.pill').forEach(function(p) {
+    p.classList.remove('active');
+    var txt = p.textContent;
+    if (f === 'all' && txt === 'Alles') p.classList.add('active');
+    else if (f === 'concert' && txt === 'Concerten') p.classList.add('active');
+    else if (f === 'dans' && txt === 'Dans / ballet') p.classList.add('active');
+    else if (f === 'venue:' + txt) p.classList.add('active');
+  });
+}
+
+function filterEvents(events) {
+  return events.filter(function(e) {
+    if (activeFilter === 'all') return true;
+    if (activeFilter === 'concert') return e.genre === 'concert';
+    if (activeFilter === 'dans') return e.genre === 'dans';
+    if (activeFilter.indexOf('venue:') === 0) return e.venue === activeFilter.substring(6);
+    return true;
+  });
+}
+
+function renderDashboard() {
+  renderStats();
+  renderAlerts();
+  renderFilters('dashboard-filters');
+  var upcoming = filterEvents(EVENTS.filter(function(e){ return daysUntil(e.date) >= 0; })).slice(0, 8);
+  var html = '';
+  upcoming.forEach(function(e, i) { html += renderEventCard(e, i); });
+  document.getElementById('upcoming-container').innerHTML = html;
+}
+
+function renderAgenda() {
+  renderFilters('agenda-filters');
+  var events = filterEvents(EVENTS.filter(function(e){ return daysUntil(e.date) >= -7; }));
+  var html = '';
+  var currentMonth = -1;
+  events.forEach(function(e, i) {
+    var d = shortDate(e.date);
+    if (d.m !== currentMonth) {
+      currentMonth = d.m;
+      html += '<div class="section-head" style="margin-top:' + (i===0?0:20) + 'px"><span class="section-title">' + MONTHS_NL[d.m] + ' ' + d.year + '</span></div>';
+    }
+    html += renderEventCard(e, i);
+  });
+  document.getElementById('agenda-container').innerHTML = html;
+}
+
+function renderCalendar() {
+  document.getElementById('cal-title').textContent = MONTHS_NL[calMonth] + ' ' + calYear;
+  var grid = document.getElementById('cal-grid');
+  var html = '';
+  DAYS_SHORT.forEach(function(d) { html += '<div class="cal-day-label">' + d + '</div>'; });
+
+  var first = new Date(calYear, calMonth, 1);
+  var startDay = (first.getDay() + 6) % 7;
+  var daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+
+  var monthEvents = {};
+  EVENTS.forEach(function(e) {
+    var p = e.date.split('-');
+    if (parseInt(p[0]) === calYear && parseInt(p[1])-1 === calMonth) {
+      var day = parseInt(p[2]);
+      if (!monthEvents[day]) monthEvents[day] = [];
+      monthEvents[day].push(e);
+    }
+  });
+
+  for (var i = 0; i < startDay; i++) html += '<div class="cal-cell empty">&nbsp;</div>';
+
+  var today = new Date(2026, 3, 2);
+  for (var d = 1; d <= daysInMonth; d++) {
+    var isToday = (calYear === today.getFullYear() && calMonth === today.getMonth() && d === today.getDate());
+    var evts = monthEvents[d] || [];
+    var hasEv = evts.length > 0;
+    var dots = '';
+    if (hasEv) {
+      dots = '<div class="cal-dots">';
+      evts.forEach(function(e) { dots += '<div class="cal-dot ' + e.genre + '"></div>'; });
+      dots += '</div>';
+    }
+    html += '<div class="cal-cell' + (isToday ? ' today' : '') + (hasEv ? ' has-event' : '') + '"' +
+      (hasEv ? ' onclick="showCalDay(' + d + ')"' : '') + '>' + d + dots + '</div>';
+  }
+  grid.innerHTML = html;
+
+  var evList = EVENTS.filter(function(e) {
+    var p = e.date.split('-');
+    return parseInt(p[0]) === calYear && parseInt(p[1])-1 === calMonth;
+  });
+  document.getElementById('cal-events-title').textContent = 'Events in ' + MONTHS_NL[calMonth];
+  var evHtml = '';
+  evList.forEach(function(e, i) { evHtml += renderEventCard(e, i); });
+  document.getElementById('cal-events-container').innerHTML = evHtml || '<div style="padding:12px;color:var(--text-3);font-size:13px">Geen events deze maand</div>';
+}
+
+function changeMonth(dir) {
+  calMonth += dir;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+
+function showCalDay(d) {
+  var evts = EVENTS.filter(function(e) {
+    var p = e.date.split('-');
+    return parseInt(p[0]) === calYear && parseInt(p[1])-1 === calMonth && parseInt(p[2]) === d;
+  });
+  if (evts.length === 1) openDetail(evts[0].id);
+}
+
+function renderWatchlist() {
+  var wl = EVENTS.filter(function(e){ return watchlist[e.id]; }).sort(function(a,b){ return a.date.localeCompare(b.date); });
+  var html = '';
+  if (wl.length === 0) {
+    html = '<div class="empty-state"><div class="empty-state-icon">&#9734;</div><div class="empty-state-title">Je watchlist is leeg</div><div>Klik op het sterretje bij een event om het te volgen</div></div>';
+  } else {
+    wl.forEach(function(e, i) { html += renderEventCard(e, i); });
+  }
+  document.getElementById('watchlist-container').innerHTML = html;
+}
+
+function toggleWatch(id) {
+  if (watchlist[id]) delete watchlist[id];
+  else watchlist[id] = true;
+  renderAll();
+}
+
+function openDetail(id) {
+  var e = EVENTS.find(function(ev){ return ev.id === id; });
+  if (!e) return;
+  var isWl = watchlist[e.id];
+  var ps = presaleLabel(e.presale);
+
+  var html = '<div class="detail-header">' +
+    '<button class="detail-close" onclick="closeDetail()">&times;</button>' +
+    '<div class="detail-genre ' + e.genre + '">' + (e.genre === 'concert' ? 'Concert' : 'Dans / ballet') + '</div>' +
+    '<div class="detail-title">' + e.name + '</div>' +
+    (e.subtitle ? '<div style="font-size:15px;color:var(--text-2);margin-bottom:4px">' + e.subtitle + '</div>' : '') +
+    '<div class="detail-venue">' + e.venue + '</div></div>';
+
+  html += '<div class="detail-meta">' +
+    '<div class="meta-item"><div class="meta-label">Datum</div><div class="meta-value">' + formatDate(e.date) + '</div></div>' +
+    '<div class="meta-item"><div class="meta-label">Prijs</div><div class="meta-value">vanaf &euro;' + e.price + '</div></div>' +
+    '<div class="meta-item"><div class="meta-label">Status</div><div class="meta-value">' + statusTag(e.status) + '</div></div>';
+
+  if (ps) {
+    html += '<div class="meta-item"><div class="meta-label">Voorverkoop</div><div class="meta-value"><span class="alert-badge ' + ps.cls + '">' + ps.text + '</span></div></div>';
+  } else {
+    html += '<div class="meta-item"><div class="meta-label">Verkoop</div><div class="meta-value">Vrije verkoop</div></div>';
+  }
+  html += '</div>';
+
+  if (e.koopwijzer && e.koopwijzer.length) {
+    html += '<div class="detail-section"><div class="detail-section-title">&#128218; Koopwijzer</div><div class="koopwijzer">';
+    e.koopwijzer.forEach(function(step, i) {
+      html += '<div class="koopwijzer-step"><div class="step-num">' + (i+1) + '</div><div class="step-text">' + step + '</div></div>';
+    });
+    html += '</div></div>';
+  }
+
+  if (e.presaleInfo) {
+    html += '<div class="detail-section"><div class="detail-section-title">&#128276; Voorverkoop info</div>' +
+      '<div style="font-size:13px;color:var(--text-2);padding:8px 0">' + e.presaleInfo + '</div></div>';
+  }
+
+  html += '<div class="detail-actions">';
+  if (e.ticketUrl) {
+    html += '<a href="' + e.ticketUrl + '" target="_blank" class="btn btn-primary btn-icon">Kaarten kopen <span>&rarr;</span></a>';
+  }
+  html += '<button class="btn btn-secondary btn-icon" onclick="toggleWatch(' + e.id + ');openDetail(' + e.id + ')">' +
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="' + (isWl ? 'var(--accent)' : 'none') + '" stroke="var(--accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> ' +
+    (isWl ? 'Op watchlist' : 'Watchlist') + '</button>';
+  html += '</div>';
+
+  document.getElementById('detail-panel').innerHTML = html;
+  document.getElementById('detail-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDetail() {
+  document.getElementById('detail-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeDetail();
+});
+
+function showView(view) {
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+  document.getElementById('view-' + view).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(function(b){
+    b.classList.toggle('active', b.dataset.view === view);
+  });
+  if (view === 'calendar') renderCalendar();
+  if (view === 'watchlist') renderWatchlist();
+  if (view === 'agenda') renderAgenda();
+  if (view === 'dashboard') renderDashboard();
+  window.scrollTo(0, 0);
+}
+
+function renderAll() {
+  renderDashboard();
+  renderAgenda();
+  renderCalendar();
+  renderWatchlist();
+}
+
+renderAll();
+</script>
+</body>
+</html>
