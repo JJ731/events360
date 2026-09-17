@@ -1,11 +1,12 @@
 # KOPIE van JJ731/360-baseline/.github/workflows/smoke.yml.
 # Deze repo is publiek en mag de reusable workflow uit de private baseline-repo
 # niet aanroepen. Bij wijzigingen in de baseline hier handmatig bijwerken.
-# Geen deploy-workflow in deze repo: alleen gepland en handmatig.
+# Geen deploy-workflow in deze repo. De site (events360-nl) bestaat nog niet,
+# dus alleen handmatig; zet het schema terug zodra de site live staat:
+#   schedule:
+#     - cron: "17 */6 * * *"
 name: Smoke
 on:
-  schedule:
-    - cron: "17 */6 * * *"
   workflow_dispatch:
 permissions:
   contents: read
