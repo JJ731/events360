@@ -1,0 +1,10 @@
+name: Quality
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  quality:
+    uses: JJ731/360-baseline/.github/workflows/quality.yml@main

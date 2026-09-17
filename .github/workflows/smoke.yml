@@ -1,0 +1,15 @@
+# Geen deploy-workflow in deze repo: alleen gepland en handmatig.
+name: Smoke
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+jobs:
+  smoke:
+    uses: JJ731/360-baseline/.github/workflows/smoke.yml@main
+    with:
+      urls: |
+        https://events360-nl.web.app/
