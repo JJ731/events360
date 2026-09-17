@@ -1,3 +1,6 @@
+# KOPIE van JJ731/360-baseline/.github/workflows/quality.yml (jobs syntax + secrets).
+# Deze repo is publiek en mag de reusable workflow uit de private baseline-repo
+# niet aanroepen. Bij wijzigingen in de baseline hier handmatig bijwerken.
 name: Quality
 on:
   push:
@@ -6,5 +9,102 @@ on:
 permissions:
   contents: read
 jobs:
-  quality:
-    uses: JJ731/360-baseline/.github/workflows/quality.yml@main
+  syntax:
+    name: Syntax (JS + inline scripts)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - name: Syntax-check
+        run: |
+          cat > /tmp/check-syntax.mjs <<'SCRIPT_EOF'
+          #!/usr/bin/env node
+          // Syntax-check voor alle getrackte JS-bestanden én inline <script>-blokken in HTML.
+          // Eén syntaxfout in een single-file app maakt de hele pagina leeg; dit vangt dat
+          // vóór het live staat. Draait zonder dependencies: `node check-syntax.mjs [repo-root]`.
+          import { execSync, spawnSync } from 'node:child_process';
+          import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+          import { tmpdir } from 'node:os';
+          import { join } from 'node:path';
+
+          const root = process.argv[2] || '.';
+          const tmp = mkdtempSync(join(tmpdir(), 'syntax-'));
+          const files = execSync('git ls-files', { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
+            .split('\n')
+            .filter(f => f && !/(^|\/)(node_modules|vendor|dist|build|\.next)\//.test(f) && !/\.min\.js$/.test(f));
+
+          const SKIP_TYPES = /^(application\/(ld\+)?json|text\/(template|x-template|html|plain|babel|x-handlebars|markdown)|importmap|speculationrules)$/i;
+          const failures = [];
+          let checked = 0;
+
+          function check(file, source, label, isModule) {
+            const ext = isModule ? '.mjs' : '.cjs';
+            const tmpFile = join(tmp, `${checked}${ext}`);
+            writeFileSync(tmpFile, source);
+            checked++;
+            let r = spawnSync(process.execPath, ['--check', tmpFile], { encoding: 'utf8' });
+            // Klassieke scripts mogen top-level await/import niet, maar veel inline blokken zijn
+            // stilzwijgend modules; probeer als module voordat we falen.
+            if (r.status !== 0 && !isModule) {
+              const alt = join(tmp, `${checked}.mjs`);
+              writeFileSync(alt, source);
+              const r2 = spawnSync(process.execPath, ['--check', alt], { encoding: 'utf8' });
+              if (r2.status === 0) return;
+            }
+            if (r.status !== 0) {
+              const msg = (r.stderr || '').split('\n').filter(l => /Error/.test(l)).slice(0, 1).join(' ');
+              failures.push(`${file}${label}: ${msg}`);
+            }
+          }
+
+          for (const f of files) {
+            const full = join(root, f);
+            if (/\.(mjs)$/.test(f)) check(f, readFileSync(full, 'utf8'), '', true);
+            else if (/\.(js|cjs)$/.test(f)) {
+              const src = readFileSync(full, 'utf8');
+              check(f, src, '', /^\s*(import|export)\s/m.test(src));
+            } else if (/\.html?$/.test(f)) {
+              const html = readFileSync(full, 'utf8');
+              if (html.includes('<?')) continue; // Apps Script / server-templates
+              const re = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
+              let m;
+              while ((m = re.exec(html))) {
+                const attrs = m[1];
+                const body = m[2];
+                if (/\bsrc\s*=/.test(attrs) || !body.trim()) continue;
+                const type = (attrs.match(/\btype\s*=\s*["']?([^"'\s>]+)/i) || [])[1] || '';
+                if (type && SKIP_TYPES.test(type)) continue;
+                if (/\{\{|\{%|<%/.test(body)) continue; // template-syntax
+                const line = html.slice(0, m.index).split('\n').length;
+                check(f, body, ` (inline script, regel ${line})`, type.toLowerCase() === 'module');
+              }
+            }
+          }
+
+          console.log(`Syntax-check: ${checked} scripts gecontroleerd, ${failures.length} fout(en).`);
+          failures.forEach(x => console.log(`::error::${x}`));
+          process.exit(failures.length ? 1 : 0);
+          SCRIPT_EOF
+          node /tmp/check-syntax.mjs .
+
+  secrets:
+    name: Secret-scan (gewijzigde commits)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Gitleaks
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          RANGE="HEAD~1..HEAD"
+          if [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$BEFORE" 2>/dev/null; then
+            RANGE="$BEFORE..HEAD"
+          fi
+          git rev-parse -q --verify HEAD~1 >/dev/null || RANGE="HEAD"
+          echo "Scan: $RANGE"
+          docker run --rm -v "$PWD:/repo" -w /repo zricethezav/gitleaks:v8.21.2 \
+            git --redact --no-banner --exit-code 1 --log-opts="$RANGE" .

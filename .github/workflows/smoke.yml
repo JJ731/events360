@@ -1,3 +1,6 @@
+# KOPIE van JJ731/360-baseline/.github/workflows/smoke.yml.
+# Deze repo is publiek en mag de reusable workflow uit de private baseline-repo
+# niet aanroepen. Bij wijzigingen in de baseline hier handmatig bijwerken.
 # Geen deploy-workflow in deze repo: alleen gepland en handmatig.
 name: Smoke
 on:
@@ -9,7 +12,70 @@ permissions:
   issues: write
 jobs:
   smoke:
-    uses: JJ731/360-baseline/.github/workflows/smoke.yml@main
-    with:
-      urls: |
-        https://events360-nl.web.app/
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - name: Playwright installeren
+        run: |
+          mkdir -p /tmp/smoke && cd /tmp/smoke
+          npm init -y >/dev/null
+          npm install --silent playwright@1.49.1
+          npx playwright install --with-deps chromium
+      - name: Pagina's laden
+        id: run
+        working-directory: /tmp/smoke
+        env:
+          URLS: https://events360-nl.web.app/
+          IGNORE: ""
+        run: |
+          cat > smoke.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          import { appendFileSync } from 'node:fs';
+          const urls = process.env.URLS.split('\n').map(s => s.trim()).filter(Boolean);
+          const ignore = process.env.IGNORE ? new RegExp(process.env.IGNORE) : null;
+          const browser = await chromium.launch();
+          const problems = [];
+          for (const url of urls) {
+            const page = await browser.newPage();
+            const errors = [];
+            page.on('pageerror', e => { if (!ignore || !ignore.test(String(e))) errors.push(String(e).split('\n')[0]); });
+            let status = 0;
+            for (let attempt = 1; attempt <= 3; attempt++) {
+              try {
+                const res = await page.goto(url, { waitUntil: 'load', timeout: 45000 });
+                status = res ? res.status() : 0;
+                if (status && status < 500) break;
+              } catch (e) { status = 0; if (attempt === 3) errors.push(`navigatie: ${String(e).split('\n')[0]}`); }
+              await new Promise(r => setTimeout(r, 5000));
+            }
+            await page.waitForTimeout(3000);
+            const ok = status > 0 && status < 400 && errors.length === 0;
+            console.log(`${ok ? 'OK  ' : 'FOUT'} ${status} ${url}`);
+            errors.forEach(e => console.log(`     ${e}`));
+            if (!ok) problems.push(`- ${url} → HTTP ${status}${errors.length ? `; ${errors.join(' | ')}` : ''}`);
+            await page.close();
+          }
+          await browser.close();
+          if (problems.length) {
+            appendFileSync(process.env.GITHUB_OUTPUT, `problems<<P_EOF\n${problems.join('\n')}\nP_EOF\n`);
+            process.exit(1);
+          }
+          EOF
+          node smoke.mjs
+      - name: Issue bij falende geplande run
+        if: failure() && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PROBLEMS: ${{ steps.run.outputs.problems }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh label create smoke-failure -R "$GITHUB_REPOSITORY" --color B60205 --description "Live site smoke-test faalt" 2>/dev/null || true
+          BODY=$(printf 'De geplande smoke-test faalt.\n\n%s\n\nRun: %s' "$PROBLEMS" "$RUN_URL")
+          NUM=$(gh issue list -R "$GITHUB_REPOSITORY" --label smoke-failure --state open --json number -q '.[0].number')
+          if [ -n "$NUM" ]; then
+            gh issue comment "$NUM" -R "$GITHUB_REPOSITORY" --body "$BODY"
+          else
+            gh issue create -R "$GITHUB_REPOSITORY" --label smoke-failure --title "Live site faalt smoke-test" --body "$BODY"
+          fi
