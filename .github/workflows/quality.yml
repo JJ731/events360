@@ -13,7 +13,7 @@ jobs:
     name: Syntax (JS + inline scripts)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v5
         with:
           node-version: "22"
@@ -93,7 +93,7 @@ jobs:
     name: Secret-scan (gewijzigde commits)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Gitleaks
