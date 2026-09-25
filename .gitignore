@@ -70,3 +70,7 @@ node_modules/
 
 # Tijdelijke git worktrees (zie CLAUDE.md)
 .worktrees/
+
+# Claude Code: sessie-lokale worktrees en instellingen (niet delen)
+.claude/worktrees/
+.claude/settings.local.json
